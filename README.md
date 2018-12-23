@@ -1,5 +1,5 @@
 # rsa
-Cryptography RSA project
+Cryptography sample.RSA project
 
 • Create a project with the following features:
 (i) A graphical interface. The alphabet will have 27 characters: the blank and the 26 letters of the
