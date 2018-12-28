@@ -6,6 +6,7 @@ public class RSA {
     private long p;
     private long q;
     private long n;
+
     private long e;
     private long fi;
 
@@ -183,8 +184,5 @@ public class RSA {
         if(a == 0) return '_';
         return (char) (a + 64);
     }
-
-
-
 }
 
