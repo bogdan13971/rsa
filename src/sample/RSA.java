@@ -1,14 +1,18 @@
 package sample;
 
+import java.util.ArrayList;
+
 public class RSA {
+    //public key (n, e)
     private int k = 2;
     private int l = 3;
     private long p;
     private long q;
-    private long n;
+    private long n=1643;
 
-    private long e;
-    private long fi;
+    private long e=67;
+    private long fi=1560;
+    private long d=163;
 
     public void setK(int k) {
         this.k = k;
@@ -26,21 +30,67 @@ public class RSA {
         this.e = e;
     }
 
+    public void setD(long d) { this.d = d;}
+
+    public String getPublicKey() {
+        return "" + n + " " + e;
+    }
+
+    public Long getPrivateKey() {
+        return d;
+    }
+
+    public void setPublicKey(String key){
+        String values[] = key.split(" ");
+        setN(Integer.parseInt(values[0]));
+        setE(Integer.parseInt(values[1]));
+    }
+
+    public void setPrivateKey(String key){
+        setD(Integer.parseInt(key));
+    }
+
     public void generateRandomPrimes() {
-        double leftLimit =  Math.pow(27, k);
+        double leftLimit = Math.pow(27, k);
         double rightLimit = Math.pow(27, l);
         double leftLimitSquared = Math.sqrt(leftLimit);
         double rightLimitSquared = Math.sqrt(rightLimit);
-        do{
+        do {
             do {
                 p = (long) (leftLimitSquared + (Math.random() * (rightLimitSquared - leftLimitSquared)));
             } while (!isPrime(p, 4));
             do {
                 q = (long) (leftLimitSquared / 2 + (Math.random() * (rightLimitSquared - leftLimitSquared)));
             } while (!isPrime(q, 4));
-            n = p*q;
+            n = p * q;
         } while (leftLimit < n && n > rightLimit);
-        fi = (p-1)*(q-1);
+        fi = (p - 1) * (q - 1);
+        generateEncyptionExponent();
+        computePrivateKey();
+    }
+
+    public void computePrivateKey() {
+        d = egcd(fi, e);
+    }
+
+    public long egcd(long a, long b){
+        long s1 = 1;
+        long s2 = 0;
+        long t1 = 0;
+        long t2 = 1;
+        while (b > 0) {
+            long q = a/b;
+            long r = a - q*b;
+            a = b;
+            b = r;
+            long s = s1 - q * s2;
+            s1 = s2;
+            s2 = s;
+            long t = t1 - q * t2;
+            t1 = t2;
+            t2 = t;
+        }
+        return t1;
     }
 
     public void generateEncyptionExponent()
@@ -123,24 +173,42 @@ public class RSA {
     public String encrypt(String message)
     {
         StringBuilder encrytedMessage = new StringBuilder();
-        message = paddedMessage(message);
+        message = paddedMessage(message, k);
 
         for(int i=0; i<message.length();i+=k)
         {
-            long m = convertBlockToValue(message.substring(i, i+k));
-            encrytedMessage.append(convertValueToBlock(m));
+            long m = convertBlockToValue(message.substring(i, i+k), k, 96);
+            m = power(m, e, n);
+            encrytedMessage.append(convertValueToBlock(m, 64));
         }
-
+        System.out.println(decrypt(String.valueOf(encrytedMessage)));
         return String.valueOf(encrytedMessage);
     }
 
-    private String paddedMessage(String message)
+    public String decrypt(String plaintext)
     {
-        int padding = message.length() % k;
+        StringBuilder decryptedMessage = new StringBuilder();
+        plaintext = paddedMessage(plaintext, l);
+        System.out.println("Plaintext-ul este " + plaintext);
+
+        for(int i=0; i<plaintext.length();i+=l)
+        {
+            long c = convertBlockToValue(plaintext.substring(i, i+l), l, 64);
+            c = power(c, d, n);
+            System.out.println(c);
+            decryptedMessage.append(convertValueToBlock(c, 96));
+        }
+
+        return String.valueOf(decryptedMessage);
+    }
+
+    private String paddedMessage(String message, int size)
+    {
+        int padding = message.length() % size;
         if(padding != 0)
         {
             StringBuilder messageBuilder = new StringBuilder(message);
-            for(int i = 0; i<k-padding; i++)
+            for(int i = 0; i<size-padding; i++)
             {
                 messageBuilder.append('_');
             }
@@ -150,39 +218,41 @@ public class RSA {
         return message;
     }
 
-    private long convertBlockToValue(String block)
+    private long convertBlockToValue(String block, int size, int letter)
     {
         long m = 0;
-        for (int i=0; i < k ; i++)
+        for (int i=0; i < size ; i++)
         {
-            m += convertCharToInt(block.charAt(i)) * Math.pow(27, k-i-1);
+            m += convertCharToInt(block.charAt(i), letter) * Math.pow(27, size-i-1);
+            System.out.println(m);
         }
-        return power(m, e, n);
+        return m;
     }
 
-    private int convertCharToInt(char a)
+    private int convertCharToInt(char a, int letter)
     {
+        System.out.println(a);
         if(a == '_') return 0;
-        return a - 96;
+        return a - letter;
     }
 
-    private String convertValueToBlock(long value)
+    private String convertValueToBlock(long value, int letter)
     {
         StringBuilder stringBuilder = new StringBuilder();
 
         while(value != 0)
         {
-            stringBuilder.append(convertIntToChar((int)value % 27));
+            stringBuilder.append(convertIntToChar((int)value % 27, letter));
             value = value / 27;
         }
 
         return String.valueOf(stringBuilder.reverse());
     }
 
-    private char convertIntToChar(int a)
+    private char convertIntToChar(int a, int letter)
     {
         if(a == 0) return '_';
-        return (char) (a + 64);
+        return (char) (a + letter);
     }
 }
 

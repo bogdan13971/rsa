@@ -29,12 +29,10 @@ public class Main extends Application {
         catch (IOException ex){
             ex.printStackTrace();
         }
-//        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-//        primaryStage.setTitle("Hello World");
-//        primaryStage.setScene(new Scene(root, 300, 275));
-//        primaryStage.show();
-//
+
 //        RSA rsa = new RSA();
+//        rsa.generateRandomPrimes();
+//        System.out.println(rsa.decrypt("AYX_RLAGABAR"));
 //
 //        rsa.generateRandomPrimes();
 
