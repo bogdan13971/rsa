@@ -71,6 +71,11 @@ public class RSA {
 
     public void computePrivateKey() {
         d = egcd(fi, e);
+        d = d % fi;
+        if(d < 0)
+        {
+            d+=fi;
+        }
     }
 
     public long egcd(long a, long b){
@@ -116,7 +121,6 @@ public class RSA {
 
         long res = 1;
         x = x % p;
-
         while (y > 0) {
 
             if ((y & 1) == 1)
