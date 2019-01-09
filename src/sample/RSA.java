@@ -97,10 +97,10 @@ public class RSA {
     {
         do{
             e = (long) (1 + (Math.random()*(fi - 1)));
-        } while (gcd(e, fi) == 1);
+        } while (gcd(e, fi) != 1);
     }
 
-    private long gcd(long a, long b)
+    public long gcd(long a, long b)
     {
         while(b != 0)
         {
@@ -179,9 +179,9 @@ public class RSA {
         {
             long m = convertBlockToValue(message.substring(i, i+k), k, 96);
             m = power(m, e, n);
-            encrytedMessage.append(convertValueToBlock(m, 64));
+            encrytedMessage.append(convertValueToBlock(m, 64, l));
         }
-        System.out.println(decrypt(String.valueOf(encrytedMessage)));
+
         return String.valueOf(encrytedMessage);
     }
 
@@ -196,7 +196,7 @@ public class RSA {
             long c = convertBlockToValue(plaintext.substring(i, i+l), l, 64);
             c = power(c, d, n);
             System.out.println(c);
-            decryptedMessage.append(convertValueToBlock(c, 96));
+            decryptedMessage.append(convertValueToBlock(c, 96, k));
         }
 
         return String.valueOf(decryptedMessage);
@@ -224,7 +224,6 @@ public class RSA {
         for (int i=0; i < size ; i++)
         {
             m += convertCharToInt(block.charAt(i), letter) * Math.pow(27, size-i-1);
-            System.out.println(m);
         }
         return m;
     }
@@ -236,11 +235,11 @@ public class RSA {
         return a - letter;
     }
 
-    private String convertValueToBlock(long value, int letter)
+    private String convertValueToBlock(long value, int letter, int blockSize)
     {
         StringBuilder stringBuilder = new StringBuilder();
 
-        while(value != 0)
+        for(int i=0;i<blockSize;i++)
         {
             stringBuilder.append(convertIntToChar((int)value % 27, letter));
             value = value / 27;
