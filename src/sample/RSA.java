@@ -257,5 +257,13 @@ public class RSA {
         if(a == 0) return '_';
         return (char) (a + letter);
     }
+
+    public int getK() {
+        return k;
+    }
+
+    public int getL() {
+        return l;
+    }
 }
 
